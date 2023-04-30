@@ -30,18 +30,12 @@ public class Board extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<RelatedBoard> relatedBoard;
 
     public static Board of(BoardRequestDto requestDto) {
         return Board.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
                 .build();
-    }
-
-    public void setRelatedBoards(List<RelatedBoard> relatedBoard) {
-        this.relatedBoard = relatedBoard;
     }
 
     public int getTotalWordCount() {

@@ -21,15 +21,17 @@ public class RelatedBoard {
     @Column
     private int relatedCount;
 
-    @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @Column(name = "board_id")
+    private Long boardId;
 
+    @Column(name = "related_board_id")
+    private Long relatedBoardId;
 
-    public static RelatedBoard of(Board board, int relatedCount) {
+    public static RelatedBoard of(Long boardId, Long relatedBoardId ,int relatedCount) {
 
         return RelatedBoard.builder()
-                .board(board)
+                .boardId(boardId)
+                .relatedBoardId(relatedBoardId)
                 .relatedCount(relatedCount)
                 .build();
     }

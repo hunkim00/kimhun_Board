@@ -42,18 +42,17 @@ public class BoardController {
         if (relatedPosts != null && !relatedPosts.isEmpty()) {
             System.out.println("관련 게시글:");
             for (BoardResponseDto relatedBoard : relatedPosts) {
-                System.out.println("- " + relatedBoard.getRelatedPosts());
+                System.out.println("- " + relatedBoard);
             }
         }else {
             System.out.println("관련 게시글 없음");
         }
-        return ResponseEntity.ok(relatedPosts);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/api/board")
     public ResponseEntity<?> createBoard(@RequestBody BoardRequestDto requestDto) {
         Board board = boardService.createBoard(requestDto);
-        System.out.println(board);
         return ResponseEntity.ok().build();
     }
 }

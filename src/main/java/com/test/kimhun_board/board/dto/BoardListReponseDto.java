@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 public class BoardListReponseDto {
     private Long noticeId;
     private String title;
+    private String content;
     private LocalDateTime createdAt;
 
     public static BoardListReponseDto of(Board board) {
         return BoardListReponseDto.builder()
                 .noticeId(board.getBoardId())
                 .title(board.getTitle())
+                .content(board.getContent())
                 .createdAt(board.getCreatedAt())
                 .build();
     }

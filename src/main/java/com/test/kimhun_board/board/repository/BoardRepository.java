@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
@@ -18,4 +19,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query("SELECT b FROM Board b WHERE b.boardId = :boardId AND b.createdAt > :createdAt ORDER BY b.createdAt DESC")
     List<Board> findAllByBoardId(@Param("boardId") Long boardId, @Param("createdAt") LocalDateTime createdAt);
 
+    List<Board> findByBoardIdIn(List<Long> boardId);
 }

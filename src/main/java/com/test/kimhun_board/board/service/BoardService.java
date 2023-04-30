@@ -6,6 +6,7 @@ import com.test.kimhun_board.board.dto.BoardResponseDto;
 import com.test.kimhun_board.board.entity.Board;
 import com.test.kimhun_board.board.entity.RelatedBoard;
 import com.test.kimhun_board.board.repository.BoardRepository;
+import com.test.kimhun_board.board.repository.RelatedBoardRepository;
 import com.test.kimhun_board.board.validator.BoardValidator;
 import com.test.kimhun_board.util.TokenFrequencyCounter;
 import kr.co.shineware.nlp.komoran.model.Token;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final TokenFrequencyCounter tokenFrequencyCounter;
+    private final RelatedBoardRepository relatedBoardRepository;
 
     public Page<BoardListReponseDto> getBoard(PageRequest pageRequest) {
         Page<Board> pages = boardRepository.findByOrderByCreatedAtDesc(pageRequest);
@@ -36,20 +38,24 @@ public class BoardService {
     }
 
     public BoardResponseDto getBoardDetail(Long boardId) {
-        Board Board = BoardValidator.validate(boardRepository, boardId);
-        return BoardResponseDto.of(Board);
+        Board board = BoardValidator.validate(boardRepository, boardId);
+        List<Long> relatedBoardIds = relatedBoardRepository.findByBoardId(boardId).stream()
+                .map(RelatedBoard::getRelatedBoardId)
+                .collect(Collectors.toList());
+        List<Board> relatedBoards = boardRepository.findByBoardIdIn(relatedBoardIds);
+        return BoardResponseDto.of(board,relatedBoards);
     }
 
     @Transactional
     public Board createBoard(BoardRequestDto requestDto) {
         Board board = Board.of(requestDto);
 
+        boardRepository.save(board);
+
         List<RelatedBoard> relatedBoards = findRelatedBoards(board);
         if (!relatedBoards.isEmpty()) {
-            board.setRelatedBoards(relatedBoards);
+            relatedBoardRepository.saveAll(relatedBoards);
         }
-
-        boardRepository.save(board);
 
         return board;
     }
@@ -81,6 +87,9 @@ public class BoardService {
                 .stream()
                 .filter(entry -> {
                     Board recentBoard = entry.getKey();
+                    if(recentBoard.getBoardId() == board.getBoardId()){
+                        return false;
+                    }
                     int frequency = entry.getValue();
                     int totalCount = recentBoard.getTotalWordCount();
                     int threshold = (int) Math.ceil(totalCount * 0.4);
@@ -92,7 +101,7 @@ public class BoardService {
                             int frequency2 = entry2.getValue();
                     return Integer.compare(frequency2, frequency1);
                 })
-                .map(entry -> RelatedBoard.of(entry.getKey(),entry.getValue()))
+                .map(entry -> RelatedBoard.of(board.getBoardId(), entry.getKey().getBoardId(), entry.getValue()))
                 .collect(Collectors.toList());
         return relatedBoards;
     }
