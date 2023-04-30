@@ -30,10 +30,8 @@ public class Board extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
-    @OneToMany(mappedBy = "boardId")
-    private List<Board> relatedBoard;
-    @ElementCollection
-    private List<String> contents;
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private List<RelatedBoard> relatedBoard;
 
     public static Board of(BoardRequestDto requestDto) {
         return Board.builder()
@@ -42,21 +40,17 @@ public class Board extends BaseEntity {
                 .build();
     }
 
-    public void setRelatedBoards(List<Board> relatedBoard) {
+    public void setRelatedBoards(List<RelatedBoard> relatedBoard) {
         this.relatedBoard = relatedBoard;
     }
 
     public int getTotalWordCount() {
-        int count = 0;
         TokenFrequencyCounter tokenizer = new TokenFrequencyCounter();
-        for (String content : contents) {
-            List<String> tokens = tokenizer.tokenize(content)
-                    .stream()
-                    .map(Token::getMorph)
-                    .collect(Collectors.toList());
-            count += TokenFrequencyCounter.getFrequencyMap(tokens).values().stream().mapToInt(Integer::intValue).sum();
-        }
-        return count;
+        List<String> tokens = tokenizer.tokenize(content)
+                .stream()
+                .map(Token::getMorph)
+                .collect(Collectors.toList());
+        return TokenFrequencyCounter.getFrequencyMap(tokens).values().stream().mapToInt(Integer::intValue).sum();
 
     }
 }

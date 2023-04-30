@@ -34,4 +34,30 @@ public class TokenFrequencyCounter {
         return tokens;
     }
 
+    public int frequency(List<Token> tokens, Token token) {
+        int result = 0;
+        if (token == null) {
+            for (Token t : tokens)
+                if (t == null)
+                    result++;
+        } else {
+            for (Token t : tokens)
+                if (tokenEquals(token, t))
+                    result++;
+        }
+        return result;
+    }
+
+    public boolean tokenEquals(Token token1, Token token2) {
+        if (token1.getBeginIndex() != token2.getBeginIndex()) {
+            return false;
+        } else if (token1.getEndIndex() != token2.getEndIndex()) {
+            return false;
+        } else if (!token1.getMorph().equals(token2.getMorph())) {
+            return false;
+        } else if (!token1.getPos().equals(token2.getPos())) {
+            return false;
+        }
+        return true;
+    }
 }

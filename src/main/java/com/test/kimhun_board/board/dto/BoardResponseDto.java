@@ -1,6 +1,7 @@
 package com.test.kimhun_board.board.dto;
 
 import com.test.kimhun_board.board.entity.Board;
+import com.test.kimhun_board.board.entity.RelatedBoard;
 import lombok.*;
 
 import java.time.LocalDateTime;

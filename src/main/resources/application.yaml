@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: 
-    username:
-    password:
+    url: jdbc:mysql://database-1.ccimhklhuk9k.ap-northeast-2.rds.amazonaws.com:3306/board
+    username: admin
+    password: ndNm5fQzLYJr29C81TJE
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true

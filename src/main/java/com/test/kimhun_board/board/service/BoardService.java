@@ -4,6 +4,7 @@ import com.test.kimhun_board.board.dto.BoardListReponseDto;
 import com.test.kimhun_board.board.dto.BoardRequestDto;
 import com.test.kimhun_board.board.dto.BoardResponseDto;
 import com.test.kimhun_board.board.entity.Board;
+import com.test.kimhun_board.board.entity.RelatedBoard;
 import com.test.kimhun_board.board.repository.BoardRepository;
 import com.test.kimhun_board.board.validator.BoardValidator;
 import com.test.kimhun_board.util.TokenFrequencyCounter;
@@ -43,7 +44,7 @@ public class BoardService {
     public Board createBoard(BoardRequestDto requestDto) {
         Board board = Board.of(requestDto);
 
-        List<Board> relatedBoards = findRelatedBoards(board);
+        List<RelatedBoard> relatedBoards = findRelatedBoards(board);
         if (!relatedBoards.isEmpty()) {
             board.setRelatedBoards(relatedBoards);
         }
@@ -53,12 +54,12 @@ public class BoardService {
         return board;
     }
 
-    public List<Board> findRelatedBoards(Board board) {
+    public List<RelatedBoard> findRelatedBoards(Board board) {
         List<Token> tokens = tokenFrequencyCounter.tokenize(board.getContent());
         Set<String> excludedWords = getExcludedWords(tokens);
 
-        List<Board> recentBoards = boardRepository.findAllByBoardId(board.getBoardId(), board.getCreatedAt());
-
+//        List<Board> recentBoards = boardRepository.findAllByBoardId(board.getBoardId(), board.getCreatedAt());
+        List<Board> recentBoards = boardRepository.findAll();
         // 게시글과 연관된 게시글 찾기
         Map<Board, Integer> boardFrequency = new HashMap<>();
         for (Board recentBoard : recentBoards) {
@@ -70,13 +71,13 @@ public class BoardService {
                 if (excludedWords.contains(token.getMorph())) {
                     continue;
                 }
-                frequency += Collections.frequency(recentTokens, token);
+                frequency += tokenFrequencyCounter.frequency(recentTokens, token);
             }
 
             boardFrequency.put(recentBoard, frequency);
         }
         // 연관 게시글 필터링
-        List<Board> relatedBoards = boardFrequency.entrySet()
+        List<RelatedBoard> relatedBoards = boardFrequency.entrySet()
                 .stream()
                 .filter(entry -> {
                     Board recentBoard = entry.getKey();
@@ -91,7 +92,7 @@ public class BoardService {
                             int frequency2 = entry2.getValue();
                     return Integer.compare(frequency2, frequency1);
                 })
-                .map(Map.Entry::getKey)
+                .map(entry -> RelatedBoard.of(entry.getKey(),entry.getValue()))
                 .collect(Collectors.toList());
         return relatedBoards;
     }
