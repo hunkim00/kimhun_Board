@@ -13,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/test")
@@ -20,25 +22,39 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/boardList")
-    public ResponseEntity<?> getNotices(
+    public ResponseEntity<?> getBoards(
             @PageableDefault(size = 4, page = 1) Pageable pageable
     ) {
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
 
-        Page<BoardListReponseDto> responseDto = boardService.getNotices(pageRequest);
+        Page<BoardListReponseDto> responseDto = boardService.getBoard(pageRequest);
 
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/board/{boardId}")
-    public ResponseEntity<?> getNoticeDetail(@PathVariable Long boardId) {
-        BoardResponseDto responseDto = boardService.getNoticeDetail(boardId);
+    public ResponseEntity<?> getBoardDetail(@PathVariable Long boardId) {
+        BoardResponseDto responseDto = boardService.getBoardDetail(boardId);
+
+        System.out.println("게시글 ID: " + responseDto.getBoardId());
+        System.out.println("제목: " + responseDto.getTitle());
+        System.out.println("내용: " + responseDto.getContent());
+
+        // 연관 게시글 출력
+
+        List<BoardResponseDto> relatedPosts = responseDto.getRelatedPosts(); // 수정된 부분
+        if (relatedPosts != null && !relatedPosts.isEmpty()) {
+            System.out.println("관련 게시글:");
+            for (BoardResponseDto relatedBoard : relatedPosts) {
+                System.out.println("- " + relatedBoard.getTitle());
+            }
+        }
         return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/api/board")
-    public ResponseEntity<?> createNotice(@RequestBody BoardRequestDto requestDto) {
-        Board board = boardService.createNotice(requestDto);
+    public ResponseEntity<?> createBoard(@RequestBody BoardRequestDto requestDto) {
+        Board board = boardService.createBoard(requestDto);
         System.out.println(board);
         return ResponseEntity.ok().build();
     }
