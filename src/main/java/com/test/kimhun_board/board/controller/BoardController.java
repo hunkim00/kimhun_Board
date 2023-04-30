@@ -5,6 +5,7 @@ import com.test.kimhun_board.board.dto.BoardRequestDto;
 import com.test.kimhun_board.board.dto.BoardResponseDto;
 import com.test.kimhun_board.board.entity.Board;
 import com.test.kimhun_board.board.service.BoardService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,8 +42,7 @@ public class BoardController {
         System.out.println("내용: " + responseDto.getContent());
 
         // 연관 게시글 출력
-
-        List<BoardResponseDto> relatedPosts = responseDto.getRelatedPosts(); // 수정된 부분
+        List<BoardResponseDto> relatedPosts = responseDto.getRelatedPosts();
         if (relatedPosts != null && !relatedPosts.isEmpty()) {
             System.out.println("관련 게시글:");
             for (BoardResponseDto relatedBoard : relatedPosts) {

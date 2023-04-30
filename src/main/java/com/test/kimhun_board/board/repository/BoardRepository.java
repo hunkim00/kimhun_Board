@@ -15,6 +15,8 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findByOrderByCreatedAtDesc(PageRequest pageRequest);
 
-    @Query("SELECT b FROM Board b WHERE b.createdAt > :createdAt ORDER BY b.createdAt DESC")
-    List<Board> findAllByCreatedAt(@Param("createdAt") LocalDateTime createdAt);
+    @Query("SELECT b FROM Board b WHERE b.boardId = :boardId AND b.createdAt > :createdAt ORDER BY b.createdAt DESC")
+    List<Board> findAllByBoardId(@Param("boardId") Long boardId, @Param("createdAt") LocalDateTime createdAt);
+
+    List<Board> findAllByBoardId(Long boardId);
 }

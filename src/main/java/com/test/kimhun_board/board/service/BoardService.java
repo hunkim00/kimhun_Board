@@ -43,23 +43,21 @@ public class BoardService {
     public Board createBoard(BoardRequestDto requestDto) {
         Board board = Board.of(requestDto);
 
-        boardRepository.save(board);
-
         List<Board> relatedBoards = findRelatedBoards(board);
         if (!relatedBoards.isEmpty()) {
             board.setRelatedBoards(relatedBoards);
-            boardRepository.save(board);
         }
+
+        boardRepository.save(board);
 
         return board;
     }
 
-    private List<Board> findRelatedBoards(Board board) {
+    public List<Board> findRelatedBoards(Board board) {
         List<Token> tokens = tokenFrequencyCounter.tokenize(board.getContent());
         Set<String> excludedWords = getExcludedWords(tokens);
 
-        // 게시글이 작성된 날짜 이후의 게시글만 대상으로 함
-        List<Board> recentBoards = boardRepository.findAllByCreatedAt(board.getCreatedAt());
+        List<Board> recentBoards = boardRepository.findAllByBoardId(board.getBoardId(), board.getCreatedAt());
 
         // 게시글과 연관된 게시글 찾기
         Map<Board, Integer> boardFrequency = new HashMap<>();
